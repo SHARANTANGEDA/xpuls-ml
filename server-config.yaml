@@ -1,85 +1,12 @@
-server:
-  name: test-server
-  version: v0.1 # Optional
-  applicationConnectors:
-    - type: http
-      port: 9000
-  adminConnectors:
-    - type: http
-      port: 9001
-logging:
-  level: DEBUG
+server:  # the server config section
+  enable_https: false  # if the server is deployed as an https, set it to true
+  port: 5000  # the server port
+  migration_dir: ./schema/migrations  # the migrations sql files directory
 
-  # Logger-specific levels.
-  loggers:
-    # Sets the level for 'com.example.app' to DEBUG.
-    com.udaan.common.server.DispatcherStatsMonitor: WARN
-    ROOT: INFO
-  appenders:
-    - type: console
-      threshold: DEBUG
-      logFormat: "%-6level [%d{HH:mm:ss.SSS}] [%X{TRACE-ID}] [%t] %logger{5} - %X{code} %msg %n"
-      timeZone: UTC
-kubernetes:
-  requests:
-    cpu: 100m # Per instance of this service, number of cpus needed (e.g. 0.5, or 1.5)
-    memory: 2048Mi # Memory allocated to container in MBs
-  limits: # Optiona with default of 1.5 times
-    cpu: 100m
-    memory: 2048Mi
-  tolerations: [] # Allow tolerations # Offer choosing
-  nodeSelectors: [] # Allow Node selectors
-  image: ''  # Image from user for each deployment
-  args: ''  # Image args
-  mainClass: com.udaan.build.BuildManagerService
+postgresql:  # the database config section
+  host: localhost
+  port: 5432
+  user: xpuls_client
+  password: OWjWiVYtu7dDJon
+  database: xpuls
 
-  healthcheck: default or health
-  env:
-  - namespace: dev
-    instances: 2
-    cluster: k8s0
-
-      # auto-scaling
-  containerSpec:
-    env:
-      - name: DOCKER_CONFIG
-        valueFrom:
-          secretKeyRef:
-            name: udaan-azurecr-io
-            key: .dockerconfigjson
-      - name: GITHUB_USER
-        valueFrom:
-          secretKeyRef:
-            name: github-auth
-            key: user
-      - name: GITHUB_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: github-auth
-            key: password
-      - name: KUBE_CONFIG
-        valueFrom:
-          secretKeyRef:
-            name: kubeconfig
-            key: config.yaml
-      - name: CANARY_VIOLATOR_SLACK_BOT
-        valueFrom:
-          secretKeyRef:
-            name: build-slack-key
-            key: CANARY_VIOLATOR_SLACK_BOT
-      - name: MY_NODE_NAME
-        valueFrom:
-          fieldRef:
-            fieldPath: spec.nodeName
-      - name: PROTOCOL
-        value: "https"
-    volumeMounts:
-      - name: xyz
-        mountPath: /app/config
-  volumes:
-    - name: config-vol
-      configMap:
-        name: log-config
-        items:
-          - key: log_level
-            path: log_level
