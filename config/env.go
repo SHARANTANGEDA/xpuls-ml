@@ -16,6 +16,8 @@ const (
 
 	EnvMigrationDir = "MIGRATION_DIR"
 
+	EnvServerPort = "SERVER_PORT"
+
 	EnvDockerImageBuilderPrivileged = "DOCKER_IMAGE_BUILDER_PRIVILEGED"
 
 	EnvReadHeaderTimeout = "READ_HEADER_TIMEOUT"

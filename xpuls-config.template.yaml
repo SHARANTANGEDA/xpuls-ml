@@ -1,7 +1,6 @@
 server:  # the server config section
   enable_https: false  # if the server is deployed as an https, set it to true
   port: 5000  # the server port
-  migration_dir: ./schema/migrations  # the migrations sql files directory
 
 postgresql:  # the database config section
   host: localhost
@@ -10,3 +9,4 @@ postgresql:  # the database config section
   password: OWjWiVYtu7dDJon
   database: xpuls
 
+migration_dir: ./schema/migrations  # the migrations sql files directory

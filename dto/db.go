@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/xpuls-com/xpuls-ml/common/utils"
 	"github.com/xpuls-com/xpuls-ml/config"
@@ -130,7 +131,7 @@ func getDB() (*gorm.DB, error) {
 	return db, nil
 }
 
-func StartTransaction(ctx context.Context) (*gorm.DB, context.Context, func(error), error) {
+func StartTransaction(ctx *gin.Context) (*gorm.DB, context.Context, func(error), error) {
 	return startTransaction(ctx)
 }
 

@@ -80,6 +80,6 @@ func getServeCmd() *cobra.Command {
 		Long:  "",
 		RunE:  config.MakeRunE(&opt),
 	}
-	cmd.Flags().StringVarP(&opt.ConfigPath, "config", "c", "./xpuls-config.dev.yaml", "")
+	cmd.Flags().StringVarP(&opt.ConfigPath, "config", "c", "./xpuls-config.yaml", "")
 	return cmd
 }

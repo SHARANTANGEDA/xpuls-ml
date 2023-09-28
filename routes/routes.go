@@ -14,5 +14,6 @@ func NewRouter() (*gin.Engine, error) {
 	})
 	SubmitK8s(router.Group("/v1/submit/k8s"))
 	ProjectRoutes(router.Group("/v1/project"))
+	LangChainRuns(router.Group("/"))
 	return router, nil
 }

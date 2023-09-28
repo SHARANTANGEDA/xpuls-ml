@@ -41,6 +41,7 @@ create table if not exists langchain_run_steps
     run_type                        varchar(200)                        not null,
     execution_order                 integer                             not null,
     prompt_template                 text,
+    prompt_content                  text,
     prompt_template_input_variables varchar(250)[],
     prompt_input                    text,
     prompt_chat_history             text,
