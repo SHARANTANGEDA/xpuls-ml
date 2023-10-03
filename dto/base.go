@@ -10,11 +10,11 @@ import (
 )
 
 type BaseListOption struct {
-	Start             *uint
-	Count             *uint
-	Search            *string
-	Keywords          *[]string
-	KeywordFieldNames *[]string
+	Start             *uint     `query:"start"`
+	Count             *uint     `query:"count"`
+	Search            *string   `query:"search"`
+	Keywords          *[]string `query:"keywords"`
+	KeywordFieldNames *[]string `query:"keyword_field_names"`
 }
 
 func (opt BaseListOption) BindQueryWithLimit(query *gorm.DB) *gorm.DB {

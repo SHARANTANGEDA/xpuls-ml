@@ -14,6 +14,14 @@ type langChainRunsServiceV2 struct{}
 
 var LangChainRunsServiceV2 = langChainRunsServiceV2{}
 
+func (s *langChainRunsServiceV2) GetRunsInProject(ctx *gin.Context, opt *dto.ListLangChainRunOption) ([]*models.LangChainRuns, error) {
+	return dto.LangChainRunRepository.GetRunsInProject(ctx, opt, ctx.Param("project_id"))
+}
+
+func (s *langChainRunsServiceV2) GetRunFilterKeys(ctx *gin.Context, opt *dto.ListLangChainRunOption) (*dto.LangChainFilterKeys, error) {
+	return dto.LangChainRunRepository.GetRunFilterKeys(ctx, opt, ctx.Param("project_id"))
+}
+
 func (s *langChainRunsServiceV2) TrackRun(ctx *gin.Context) error {
 	//_, ctxLocal, df, err := dto.StartTransaction(ctx)
 	//if err != nil {
@@ -31,19 +39,19 @@ func (s *langChainRunsServiceV2) TrackRun(ctx *gin.Context) error {
 		return err
 	}
 
-	langChainRun, err := dto.LangChainRunService.GetById(ctx, run.ChainID)
+	langChainRun, err := dto.LangChainRunRepository.GetById(ctx, run.ChainID)
 	if err != nil {
 		return err
 	}
 	// Check if run exists
 	if langChainRun == nil {
-		langChainRun, err = dto.LangChainRunService.AddNewRun(ctx, run)
+		langChainRun, err = dto.LangChainRunRepository.AddNewRun(ctx, run)
 		if err != nil {
 			return err
 		}
 	}
 
-	_, err = dto.LangChainRunStepsService.AddNewRunStep(ctx, runStep)
+	_, err = dto.LangChainRunStepsRepository.AddNewRunStep(ctx, runStep)
 	return err
 }
 
@@ -60,9 +68,9 @@ func (s *langChainRunsServiceV2) PatchRun(ctx *gin.Context) error {
 		return err
 	}
 
-	langChainStep, err := dto.LangChainRunStepsService.GetById(ctx, runId)
+	langChainStep, err := dto.LangChainRunStepsRepository.GetById(ctx, runId)
 	jsonDataStr := string(jsonData)
-	langChainRun, err := dto.LangChainRunService.GetById(ctx, langChainStep.ChainID)
+	langChainRun, err := dto.LangChainRunRepository.GetById(ctx, langChainStep.ChainID)
 	if err != nil {
 		return err
 	}
@@ -78,7 +86,7 @@ func (s *langChainRunsServiceV2) PatchRun(ctx *gin.Context) error {
 	langChainRun.PromptTokens = run.PromptTokens
 	langChainRun.TotalTokens = run.TotalTokens
 	langChainRun.LastStepEndTime = run.LastStepEndTime
-	_, err = dto.LangChainRunService.UpdateRun(ctx, langChainRun)
+	_, err = dto.LangChainRunRepository.UpdateRun(ctx, langChainRun)
 	if err != nil {
 		return err
 	}
@@ -89,7 +97,7 @@ func (s *langChainRunsServiceV2) PatchRun(ctx *gin.Context) error {
 	langChainStep.TokenUsage = runStep.TokenUsage
 	langChainStep.EndJSON = runStep.EndJSON
 
-	_, err = dto.LangChainRunStepsService.PatchRunStep(ctx, langChainStep)
+	_, err = dto.LangChainRunStepsRepository.PatchRunStep(ctx, langChainStep)
 	return err
 }
 

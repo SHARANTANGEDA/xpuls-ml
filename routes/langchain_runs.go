@@ -7,9 +7,10 @@ import (
 )
 
 func LangChainRuns(route *gin.RouterGroup) {
-
-	route.POST("/runs", tonic.Handler(services.LangChainRunsServiceV2.TrackRun, 200))
-	route.PATCH("/runs/:id", tonic.Handler(services.LangChainRunsServiceV2.PatchRun, 200))
-	//route.GET("/", tonic.Handler(dto.ProjectService.List, 200))
-	//route.GET("/:id", tonic.Handler(dto.ProjectService.GetById, 200))
+	route.GET("/:project_id/runs",
+		tonic.Handler(services.LangChainRunsServiceV2.GetRunsInProject, 200))
+	route.GET("/:project_id/runs/:chain_id",
+		tonic.Handler(services.LangChainRunsStepsService.GetRunsByChainId, 200))
+	route.GET("/:project_id/runs/filters/keys",
+		tonic.Handler(services.LangChainRunsServiceV2.GetRunFilterKeys, 200))
 }

@@ -1,11 +1,16 @@
 'use client'
 
 import Layout from "@/app/components/Layout";
+import Typography from "@mui/material/Typography";
 
 
 export default function Home() {
+
   return (
       <Layout>
-              <h1 style={{minHeight: "100vh"}}>Page Content</h1>
-          </Layout>)
+          <Typography variant="h5" gutterBottom>
+              Home
+          </Typography>
+      </Layout>
+  )
 }
