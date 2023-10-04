@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/lib/pq"
 	"github.com/xpuls-com/xpuls-ml/models"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -15,6 +16,16 @@ import (
 type langChainRunRepository struct{}
 
 var LangChainRunRepository = langChainRunRepository{}
+
+// Define the custom type for the enum
+type LabelCondition string
+
+// Define the possible values for the enum
+const (
+	EqualsCondition   LabelCondition = "EQUALS"
+	ILikeCondition    LabelCondition = "ILIKE"
+	NotILikeCondition LabelCondition = "NOT ILIKE"
+)
 
 func (s *langChainRunRepository) getBaseDB(ctx context.Context) *gorm.DB {
 	return mustGetSession(ctx).Model(&models.LangChainRuns{}).Table("langchain_runs")
@@ -41,6 +52,13 @@ type LangChainFilterKeys struct {
 	ProjectId   string         `json:"project_id" gorm:"column:project_id"`
 	RunTimeKeys pq.StringArray `json:"runtime_keys" gorm:"column:runtime_keys"`
 	LabelKeys   pq.StringArray `json:"label_keys" gorm:"column:label_keys"`
+}
+
+type ListLangChainFilterValuesOption struct {
+	BaseListOption
+	LabelKey    string         `query:"label_key"`
+	Condition   LabelCondition `query:"condition"`
+	SearchValue string         `query:"search_value"`
 }
 
 func (s *langChainRunRepository) AddNewRun(ctx context.Context, opt *models.LangChainRuns) (*models.LangChainRuns, error) {
@@ -95,7 +113,8 @@ func (s *langChainRunRepository) GetById(ctx context.Context, runId string) (*mo
 func (s *langChainRunRepository) GetRunsInProject(ctx context.Context, opt *ListLangChainRunOption, projectId string) ([]*models.LangChainRuns, error) {
 	var total int64
 
-	query := getBaseQuery(ctx, s).Select("*").Where("project_id = ?", projectId)
+	query := getBaseQuery(ctx, s).Select("*").Where("project_id = ?", projectId).Order(
+		"chain_tracked_at desc")
 	err := query.Count(&total).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -130,6 +149,50 @@ func (s *langChainRunRepository) GetRunFilterKeys(ctx context.Context, opt *List
 		return nil, err
 	}
 	return result, nil
+}
+
+func (s *langChainRunRepository) GetRunFilterKeyValues(ctx context.Context,
+	opt *ListLangChainFilterValuesOption, projectId string) ([]*string, error) {
+	result := make([]*string, 0)
+	var total int64
+	var labelSplit = strings.Split(opt.LabelKey, ".")
+	var conditionValueTemplate string
+	var sqlCondition string
+	switch conditionValueSwitch := opt.Condition; conditionValueSwitch {
+	case EqualsCondition:
+		sqlCondition = "="
+		conditionValueTemplate = fmt.Sprintf("'%s'", opt.SearchValue)
+	case ILikeCondition:
+		sqlCondition = string(opt.Condition)
+
+		conditionValueTemplate = fmt.Sprintf("'%%%s%%'", opt.SearchValue)
+	case NotILikeCondition:
+		sqlCondition = string(opt.Condition)
+		conditionValueTemplate = fmt.Sprintf("'%%%s%%'", opt.SearchValue)
+
+	}
+
+	query := getBaseQuery(ctx, s).Select(fmt.Sprintf("DISTINCT(%s->>'%s') as label_values",
+		labelSplit[0], labelSplit[1])).Where(
+		fmt.Sprintf("project_id = ? and (%s->>'%s') %s %s", labelSplit[0], labelSplit[1], sqlCondition,
+			conditionValueTemplate), projectId)
+
+	err := query.Count(&total).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// No record found, return nil without error
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	query = opt.BindQueryWithLimit(query)
+
+	err = query.Find(&result).Error
+	if err != nil {
+		return nil, err
+	}
+	return result, err
 }
 
 //

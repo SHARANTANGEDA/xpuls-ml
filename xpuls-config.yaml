@@ -7,4 +7,4 @@ postgresql:  # the database config section
 
 migration_dir: ./schema/migrations  # the migrations sql files directory
 enable_https: false  # if the server is deployed as an https, set it to true
-port: 5001
+port: 8000

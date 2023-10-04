@@ -13,4 +13,7 @@ func LangChainRuns(route *gin.RouterGroup) {
 		tonic.Handler(services.LangChainRunsStepsService.GetRunsByChainId, 200))
 	route.GET("/:project_id/runs/filters/keys",
 		tonic.Handler(services.LangChainRunsServiceV2.GetRunFilterKeys, 200))
+
+	route.GET("/:project_id/runs/filters/values",
+		tonic.Handler(services.LangChainRunsServiceV2.GetRunFilterKeyValues, 200))
 }

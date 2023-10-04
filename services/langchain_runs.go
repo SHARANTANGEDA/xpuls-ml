@@ -22,6 +22,10 @@ func (s *langChainRunsServiceV2) GetRunFilterKeys(ctx *gin.Context, opt *dto.Lis
 	return dto.LangChainRunRepository.GetRunFilterKeys(ctx, opt, ctx.Param("project_id"))
 }
 
+func (s *langChainRunsServiceV2) GetRunFilterKeyValues(ctx *gin.Context, opt *dto.ListLangChainFilterValuesOption) ([]*string, error) {
+	return dto.LangChainRunRepository.GetRunFilterKeyValues(ctx, opt, ctx.Param("project_id"))
+}
+
 func (s *langChainRunsServiceV2) TrackRun(ctx *gin.Context) error {
 	//_, ctxLocal, df, err := dto.StartTransaction(ctx)
 	//if err != nil {
@@ -46,6 +50,12 @@ func (s *langChainRunsServiceV2) TrackRun(ctx *gin.Context) error {
 	// Check if run exists
 	if langChainRun == nil {
 		langChainRun, err = dto.LangChainRunRepository.AddNewRun(ctx, run)
+		if err != nil {
+			return err
+		}
+	} else if langChainRun.ModelInfo == nil && run.ModelInfo != nil {
+		langChainRun.ModelInfo = run.ModelInfo
+		_, err = dto.LangChainRunRepository.UpdateRun(ctx, langChainRun)
 		if err != nil {
 			return err
 		}
@@ -101,17 +111,6 @@ func (s *langChainRunsServiceV2) PatchRun(ctx *gin.Context) error {
 	return err
 }
 
-func (s *langChainRunsServiceV2) ParseRun(ctx *gin.Context) (*models.LangChainRunSteps, *models.LangChainRuns, error) {
-	jsonData, err := ctx.GetRawData()
-	if err != nil {
-		return nil, nil, err
-	}
-	jsonDataStr := string(jsonData)
-	runStep, run, err := s.extractFieldsOnStart(jsonDataStr)
-
-	return runStep, run, err
-}
-
 func (s *langChainRunsServiceV2) getListOfStringFromGJson(jsonData string, path string) []string {
 	tagsArray := gjson.Get(jsonData, path)
 	var items []string
@@ -162,10 +161,16 @@ func (s *langChainRunsServiceV2) extractFieldsOnStart(jsonData string) (*models.
 		BeginJSON:             json.RawMessage(jsonData),
 	}
 
+	modelInfo := json.RawMessage(gjson.Get(jsonData, "serialized.kwargs.llm.kwargs").Raw)
+
+	if modelInfo == nil {
+		modelInfo = json.RawMessage(gjson.Get(jsonData, "serialized.kwargs").Raw)
+	}
+
 	var run = models.LangChainRuns{
 		ChainID:            gjson.Get(jsonData, "extra.metadata.xpuls.run_id").String(),
 		ProjectID:          gjson.Get(jsonData, "extra.metadata.xpuls.project_id").String(),
-		ModelInfo:          json.RawMessage(gjson.Get(jsonData, "serialized.kwargs.llm.kwargs").Raw),
+		ModelInfo:          modelInfo,
 		Labels:             json.RawMessage(gjson.Get(jsonData, "extra.metadata.xpuls.labels").Raw),
 		Runtime:            json.RawMessage(gjson.Get(jsonData, "extra.runtime").Raw),
 		FirstStepStartTime: eventStartTime,
@@ -186,9 +191,9 @@ func (s *langChainRunsServiceV2) extractFieldsOnEnd(jsonData string,
 		return nil, nil, err
 	}
 
-	var promptTokens *int
-	var completionTokens *int
-	var totalTokens *int
+	var promptTokens int
+	var completionTokens int
+	var totalTokens int
 	var usedTokens = 0
 	if langChainRun.PromptTokens != nil {
 		usedTokens = *langChainRun.PromptTokens
@@ -197,7 +202,7 @@ func (s *langChainRunsServiceV2) extractFieldsOnEnd(jsonData string,
 	}
 	usedTokens += int(gjson.Get(jsonData, "outputs.llm_output.token_usage.prompt_tokens").Int())
 	if usedTokens > 0 {
-		promptTokens = &usedTokens
+		promptTokens = usedTokens
 	}
 
 	if langChainRun.TotalTokens != nil {
@@ -207,7 +212,7 @@ func (s *langChainRunsServiceV2) extractFieldsOnEnd(jsonData string,
 	}
 	usedTokens += int(gjson.Get(jsonData, "outputs.llm_output.token_usage.total_tokens").Int())
 	if usedTokens > 0 {
-		totalTokens = &usedTokens
+		totalTokens = usedTokens
 	}
 
 	if langChainRun.CompletionTokens != nil {
@@ -217,7 +222,7 @@ func (s *langChainRunsServiceV2) extractFieldsOnEnd(jsonData string,
 	}
 	usedTokens += int(gjson.Get(jsonData, "outputs.llm_output.token_usage.completion_tokens").Int())
 	if usedTokens > 0 {
-		completionTokens = &usedTokens
+		completionTokens = usedTokens
 	}
 
 	var runStep = models.LangChainRunSteps{
@@ -244,9 +249,9 @@ func (s *langChainRunsServiceV2) extractFieldsOnEnd(jsonData string,
 		Runtime:            langChainRun.Runtime,
 		FirstStepStartTime: eventStartTime,
 		LastStepEndTime:    eventEndTime,
-		PromptTokens:       promptTokens,
-		TotalTokens:        totalTokens,
-		CompletionTokens:   completionTokens,
+		PromptTokens:       &promptTokens,
+		TotalTokens:        &totalTokens,
+		CompletionTokens:   &completionTokens,
 	}
 	return &runStep, &run, nil
 }
