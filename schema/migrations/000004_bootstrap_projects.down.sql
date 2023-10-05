@@ -1,0 +1,1 @@
+DELETE FROM public.projects where project_id='default';
