@@ -1,0 +1,38 @@
+FROM node:20.8-alpine
+
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+COPY ui/* .
+
+# Install dependencies based on the preferred package manager
+#RUN yarn --frozen-lockfile
+
+#COPY --from=deps /app/node_modules ./node_modules
+
+# Next.js collects completely anonymous telemetry data about general usage.
+# Uncomment the following line in case you want to disable telemetry during the build.
+ENV NEXT_TELEMETRY_DISABLED 1
+RUN yarn install
+
+RUN yarn build
+
+ENV NODE_ENV production
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+# set hostname to localhost
+ENV HOSTNAME "0.0.0.0"
+
+CMD ["yarn", "start"]
