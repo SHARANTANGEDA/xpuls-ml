@@ -1,0 +1,9 @@
+/* src/app/components/Layout.module.css */
+.layout {
+    display: flex;
+}
+
+.content {
+    margin-left: 250px;
+    flex: 1;
+}
