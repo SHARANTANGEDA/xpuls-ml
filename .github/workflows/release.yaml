@@ -30,7 +30,7 @@ jobs:
 
       - name: Build and Push Docker Image
         env:
-          VERSION: v0.0.1b
+          VERSION: 0.0.1b
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/xpuls-ml:$VERSION -f Dockerfile .
           docker push ${{ secrets.DOCKER_USERNAME }}/xpuls-ml:$VERSION
@@ -55,7 +55,7 @@ jobs:
 
       - name: Build and Push Docker Image
         env:
-          VERSION: v0.0.1b
+          VERSION: 0.0.1b
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/xpuls-ml:$VERSION -f Dockerfile-ui .
-          docker push ${{ secrets.DOCKER_USERNAME }}/xpuls-ml:$VERSION
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/xpuls-ml-platform:$VERSION -f Dockerfile-ui .
+          docker push ${{ secrets.DOCKER_USERNAME }}/xpuls-ml-platform:$VERSION
