@@ -2,21 +2,22 @@
 
 import React, {useEffect, useState} from "react";
 import {Chip} from "@nextui-org/react";
+import {LangChainRunStep} from "@/types/langchain";
 
 interface RunStepTreeProps {
-    setCurrentRunStep: (runSteps: any) => void;
+    setCurrentRunStep: (runStep: LangChainRunStep) => void;
     runSteps: any;
     currentRunStep: any;
 }
 
 interface RunStepTreeNodeProps {
-    setCurrentRunStep: (runSteps: any) => void;
+    setCurrentRunStep: (runStep: LangChainRunStep) => void;
     runSteps: any;
     currentRunStep: any;
     indentationLevel: number;
 }
 
-export const RunStepTree = ({setCurrentRunStep, runSteps, currentRunStep}: RunStepTreeProps) => {
+export const RunStepTree = ({runSteps, currentRunStep, setCurrentRunStep}: RunStepTreeProps) => {
     const nestedRunSteps = nestRunSteps(runSteps);
     return (
         <div className="flex flex-col">
@@ -55,7 +56,7 @@ const RunStepTreeNode = ({setCurrentRunStep, runSteps, currentRunStep, indentati
         <>
             {runSteps
                 .sort((a: any, b: any) => new Date(a.event_start_time).getTime() - new Date(b.event_start_time).getTime())
-                .map((runStep: any, index: number) => (
+                .map((runStep: LangChainRunStep, index: number) => (
                     <React.Fragment key={runStep.run_step_id}>
                         <div className="flex">
                             {Array.from({length: indentationLevel}, (_, i) => (
@@ -63,7 +64,7 @@ const RunStepTreeNode = ({setCurrentRunStep, runSteps, currentRunStep, indentati
                             ))}
                             <div
                                 className="group my-1 flex flex-1 cursor-pointer flex-col gap-1 rounded-sm p-2"
-                                onClick={setCurrentRunStep}
+                                onClick={() => setCurrentRunStep(runStep)}
                             >
                                 <div className="flex gap-2">
                                     <Chip radius="sm" className="line-clamp-1" style={getChipStyles(runStep.run_type)}>
