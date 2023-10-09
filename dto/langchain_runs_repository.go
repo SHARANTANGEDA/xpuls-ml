@@ -61,7 +61,8 @@ type ListLangChainFilterValuesOption struct {
 	SearchValue string         `query:"search_value"`
 }
 
-func (s *langChainRunRepository) AddNewRun(ctx context.Context, opt *models.LangChainRuns) (*models.LangChainRuns, error) {
+func (s *langChainRunRepository) AddOrGetRun(ctx context.Context,
+	opt *models.LangChainRuns) (*models.LangChainRuns, error) {
 
 	tx := s.getBaseDB(ctx).Begin()
 	if tx.Error != nil {
@@ -72,8 +73,13 @@ func (s *langChainRunRepository) AddNewRun(ctx context.Context, opt *models.Lang
 		return nil, err
 	}
 	if err := tx.Commit().Error; err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			// No record found, return nil without error
+			return s.GetById(ctx, opt.ChainID)
+		}
 		return nil, err
 	}
+
 	return opt, err
 }
 

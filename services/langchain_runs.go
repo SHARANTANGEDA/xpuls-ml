@@ -49,7 +49,7 @@ func (s *langChainRunsServiceV2) TrackRun(ctx *gin.Context) error {
 	}
 	// Check if run exists
 	if langChainRun == nil {
-		langChainRun, err = dto.LangChainRunRepository.AddNewRun(ctx, run)
+		langChainRun, err = dto.LangChainRunRepository.AddOrGetRun(ctx, run)
 		if err != nil {
 			return err
 		}
