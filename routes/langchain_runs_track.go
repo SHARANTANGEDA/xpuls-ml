@@ -8,6 +8,8 @@ import (
 
 func LangChainRunsTrack(route *gin.RouterGroup) {
 
-	route.POST("/runs", tonic.Handler(services.LangChainRunsServiceV2.TrackRun, 200))
-	route.PATCH("/runs/:id", tonic.Handler(services.LangChainRunsServiceV2.PatchRun, 200))
+	route.POST("/runs", tonic.Handler(services.LangChainRunsServiceV2.AddLangChainRunToQueue,
+		200))
+	route.PATCH("/runs/:id", tonic.Handler(services.LangChainRunsServiceV2.AddLangChainRunPatchToQueue,
+		200))
 }

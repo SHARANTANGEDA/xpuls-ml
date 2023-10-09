@@ -1,12 +1,15 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/tidwall/gjson"
 	"github.com/xpuls-com/xpuls-ml/dto"
 	"github.com/xpuls-com/xpuls-ml/models"
+	"github.com/xpuls-com/xpuls-ml/types"
 	"time"
 )
 
@@ -26,18 +29,96 @@ func (s *langChainRunsServiceV2) GetRunFilterKeyValues(ctx *gin.Context, opt *dt
 	return dto.LangChainRunRepository.GetRunFilterKeyValues(ctx, opt, ctx.Param("project_id"))
 }
 
-func (s *langChainRunsServiceV2) TrackRun(ctx *gin.Context) error {
-	//_, ctxLocal, df, err := dto.StartTransaction(ctx)
-	//if err != nil {
-	//	return err
-	//}
-	//defer func() { df(err) }()
+func (s *langChainRunsServiceV2) AddLangChainRunToQueue(ctx *gin.Context) error {
 
 	jsonData, err := ctx.GetRawData()
 	if err != nil {
 		return err
 	}
 	jsonDataStr := string(jsonData)
+	runStep, _, err := s.extractFieldsOnStart(jsonDataStr)
+	if err != nil {
+		return err
+	}
+	queueItemId, err := uuid.NewUUID()
+	if err != nil {
+		return err
+	}
+
+	paramsJsonData, err := json.Marshal(runStep)
+	if err != nil {
+		return err
+	}
+
+	queueItem := models.LLMTracingQueue{
+		QueueItemID:         queueItemId.String(),
+		QueueItemType:       types.LANGCHAIN_RUN,
+		Params:              paramsJsonData,
+		Data:                jsonData,
+		QueueProcessingCode: types.LANGCHAIN_RUN_BEGIN,
+		QueueItemProcessed:  false,
+	}
+
+	_, err = dto.LLMTracingQueueRepository.AddItemToQueue(
+		ctx,
+		&queueItem,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *langChainRunsServiceV2) AddLangChainRunPatchToQueue(ctx *gin.Context) error {
+	runId := ctx.Param("id")
+
+	queueItemId, err := uuid.NewUUID()
+	if err != nil {
+		return err
+	}
+
+	jsonData, err := ctx.GetRawData()
+	if err != nil {
+		return err
+	}
+
+	paramsJsonData, err := json.Marshal(map[string]string{
+		"run_step_id": runId,
+	})
+	if err != nil {
+		return err
+	}
+
+	queueItem := models.LLMTracingQueue{
+		QueueItemID:         queueItemId.String(),
+		QueueItemType:       types.LANGCHAIN_RUN,
+		Params:              paramsJsonData,
+		Data:                jsonData,
+		QueueProcessingCode: types.LANGCHAIN_RUN_END,
+		QueueItemProcessed:  false,
+	}
+
+	_, err = dto.LLMTracingQueueRepository.AddItemToQueue(
+		ctx,
+		&queueItem,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *langChainRunsServiceV2) TrackRunFromQueue(ctx context.Context, params json.RawMessage, data json.RawMessage) error {
+
+	var langChainRunStep *models.LangChainRunSteps
+	if err := json.Unmarshal(params, &langChainRunStep); err != nil {
+		fmt.Println("Error unmarshalling:", err)
+		return nil
+	}
+
+	jsonDataStr := string(data)
 	runStep, run, err := s.extractFieldsOnStart(jsonDataStr)
 	if err != nil {
 		return err
@@ -65,21 +146,22 @@ func (s *langChainRunsServiceV2) TrackRun(ctx *gin.Context) error {
 	return err
 }
 
-func (s *langChainRunsServiceV2) PatchRun(ctx *gin.Context) error {
-	//_, ctxLocal, df, err := dto.StartTransaction(ctx)
-	//if err != nil {
-	//	return err
-	//}
-	runId := ctx.Param("id")
-	//defer func() { df(err) }()
+func (s *langChainRunsServiceV2) PatchRunFromQueue(ctx context.Context, params json.RawMessage,
+	data json.RawMessage) error {
+	var paramsMap map[string]string
+	if err := json.Unmarshal(params, &paramsMap); err != nil {
+		fmt.Println("Error unmarshalling:", err)
+		return nil
+	}
+	runId := paramsMap["run_step_id"]
 
-	jsonData, err := ctx.GetRawData()
+	langChainStep, err := dto.LangChainRunStepsRepository.GetById(ctx, runId)
 	if err != nil {
 		return err
 	}
 
-	langChainStep, err := dto.LangChainRunStepsRepository.GetById(ctx, runId)
-	jsonDataStr := string(jsonData)
+	jsonDataStr := string(data)
+
 	langChainRun, err := dto.LangChainRunRepository.GetById(ctx, langChainStep.ChainID)
 	if err != nil {
 		return err

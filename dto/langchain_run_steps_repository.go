@@ -3,7 +3,6 @@ package dto
 import (
 	"context"
 	"errors"
-	"github.com/gin-gonic/gin"
 	"github.com/xpuls-com/xpuls-ml/models"
 	"time"
 
@@ -24,7 +23,7 @@ type ListLangChainRunStepsOption struct {
 	ChainId   string `query:"chain_id"`
 }
 
-func (s *langChainRunStepsRepository) AddNewRunStep(ctx *gin.Context, opt *models.LangChainRunSteps) (*models.LangChainRunSteps, error) {
+func (s *langChainRunStepsRepository) AddNewRunStep(ctx context.Context, opt *models.LangChainRunSteps) (*models.LangChainRunSteps, error) {
 	nowPtr := new(time.Time)
 	*nowPtr = time.Now()
 	tx := s.getBaseDB(ctx).Begin()
@@ -41,7 +40,7 @@ func (s *langChainRunStepsRepository) AddNewRunStep(ctx *gin.Context, opt *model
 	return opt, err
 }
 
-func (s *langChainRunStepsRepository) PatchRunStep(ctx *gin.Context,
+func (s *langChainRunStepsRepository) PatchRunStep(ctx context.Context,
 	opt *models.LangChainRunSteps) (*models.LangChainRunSteps, error) {
 	tx := s.getBaseDB(ctx).Begin()
 	if tx.Error != nil {

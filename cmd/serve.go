@@ -3,7 +3,9 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/go-co-op/gocron"
 	"github.com/xpuls-com/xpuls-ml/config"
+	"github.com/xpuls-com/xpuls-ml/crons"
 	"github.com/xpuls-com/xpuls-ml/dto"
 	"github.com/xpuls-com/xpuls-ml/routes"
 	"net/http"
@@ -27,6 +29,36 @@ func (opt *ServeOption) Validate(ctx context.Context) error {
 
 func (opt *ServeOption) Complete(ctx context.Context, args []string, argsLenAtDash int) error {
 	return nil
+}
+
+func (opt *ServeOption) addCronDaemons(ctx context.Context) {
+	s := gocron.NewScheduler(time.UTC).SingletonMode()
+	logger := logrus.New().WithField("cron", "sync env")
+	// Add cron every 30 seconds for processing llm tracing queue
+	_, err := s.Every(30).Second().Do(func() {
+		logger.Info("starting processor for llm tracing queue")
+		err := crons.AddProcessLLMTracingQueue(ctx)
+		if err != nil {
+			return
+		}
+	})
+	if err != nil {
+		return
+	}
+
+	// Add cron every 2 minutes for deleting processed llm traces
+	_, err = s.Every(2).Minute().Do(func() {
+		logger.Info("starting cleaner for deleting processed queue items")
+
+		err := crons.DeleteProcessedQueueItems(ctx)
+		if err != nil {
+			return
+		}
+	})
+	if err != nil {
+		return
+	}
+	s.StartAsync()
 }
 
 func (opt *ServeOption) Run(ctx context.Context, args []string) error {
@@ -53,6 +85,9 @@ func (opt *ServeOption) Run(ctx context.Context, args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "migrate up db")
 	}
+
+	// Add cron daemons
+	opt.addCronDaemons(ctx)
 
 	// nolint: contextcheck
 	router, err := routes.NewRouter()
