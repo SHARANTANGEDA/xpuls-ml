@@ -1,13 +1,9 @@
 import React from "react";
 
 import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, NavbarMenuToggle} from "@nextui-org/react";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import Typography from "@mui/material/Typography";
-import Toolbar from "@mui/material/Toolbar";
+
 import './Navbar.module.css'
-import Sidebar from "@/app/components/Sidebar";
-import {Gi3DHammer} from "react-icons/gi";
+import {Image} from "@nextui-org/react";
 
 // Define the props type
 interface XpulsNavbarProps {
@@ -23,7 +19,7 @@ export default function XpulsNavbar({ handleDrawerToggle, drawerWidth, miniDrawe
         <Navbar isBordered maxWidth={"full"} position={"sticky"}
                 style={{
                     marginLeft: open ? drawerWidth : miniDrawerWidth ,
-                    zIndex: 1400, // Set a high z-index value here
+                    zIndex: 1600, // Set a high z-index value here
                     // width: `calc(100% - ${open ? drawerWidth : miniDrawerWidth}px)` // Set the width
 
                 }}>
@@ -47,7 +43,14 @@ export default function XpulsNavbar({ handleDrawerToggle, drawerWidth, miniDrawe
                 {/*>*/}
                 {/*    <MenuIcon />*/}
                 {/*</IconButton>*/}
-                <h3 className="font-bold text-inherit">Xpuls.ai</h3>
+                <Image style={{marginRight: '30px'}}
+                    width={36}
+                    height={36}
+                    src="/favicon.ico"
+                    alt="XpulsAI Logo"
+                />
+
+                <h2 className="font-bold text-inherit">Xpuls.ai</h2>
             </NavbarBrand>
             {/*<NavbarContent className="hidden sm:flex gap-4" justify="center">*/}
             {/*    <NavbarItem>*/}

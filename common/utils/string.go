@@ -161,3 +161,11 @@ func RenderTemplate(dicts map[string]string, toRenderTmpl string) (string, error
 	}
 	return output.String(), nil
 }
+
+// IsAlphanumericWithUnderscore checks if the input string is alphanumeric with underscores only
+func IsAlphanumericWithUnderscore(s string) bool {
+	// This regex pattern matches strings that are alphanumeric and can include underscores
+	pattern := "^[a-zA-Z0-9_]+$"
+	match, _ := regexp.MatchString(pattern, s)
+	return match
+}

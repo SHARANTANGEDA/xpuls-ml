@@ -6,16 +6,16 @@ import {
     Link,
 } from '@nextui-org/react';
 import {useEffect, useState} from "react";
-import {Breadcrumbs, TableBody, Checkbox, Tooltip} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import {CircularProgress, Chip} from "@nextui-org/react";
-import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
+import {DataGrid, GridColDef, GridToolbar, GridSortModel} from '@mui/x-data-grid';
 import {useQuery} from "react-query";
 import {fetchLangChainFilterKeys, fetchLangChainRuns} from "@/services/langchain_runs";
 import FilterPanel from "@/app/observe/[projectId]/FilterPanel";
 import moment from "moment";
 import "@/app/globals.css"
 import {WhiteBackgroundTooltip} from "@/app/components/WhiteBackgrounToolTip";
+import AutoBreadcrumbs from "@/app/components/AutoBreadcrumbs";
 
 
 const columns: GridColDef[] = [
@@ -30,7 +30,7 @@ const columns: GridColDef[] = [
             return (<div>{tracked_at.fromNow()}</div>)
         }},
 
-    { field: 'duration', headerName: 'Run Duration ⏳', width: 150, renderCell: (params) => {
+    { field: '(last_step_end_time - first_step_start_time)', headerName: 'Run Duration ⏳', width: 150, renderCell: (params) => {
             // Getting the labels from params.value
             const startTime =  new Date(Date.parse(params.row.first_step_start_time)).getTime();
             const endTime =  new Date(Date.parse(params.row.last_step_end_time)).getTime();
@@ -134,10 +134,13 @@ const columns: GridColDef[] = [
 // @ts-ignore
 export default function LangChainRuns({ params }: { params: { projectId: string } }) {
 
-    const [page, setPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(4);
+    const [page, setPage] = useState<number>(1);
+    const [rowsPerPage, setRowsPerPage] = useState<number>(10);
     const [searchText, setSearchText] = useState('');
     const [filterLabels, setFilterLabels] = useState({});
+    const [sortField, setSortField] = useState('chain_tracked_at');
+    const [sortOrder, setSortOrder] = useState('desc');
+    // const [filterLabels, setFilterLabels] = useState({});
     const [filters, setFilters] = useState({});
     const [hasMoreData, setHasMoreData] = useState(true);
 
@@ -154,7 +157,7 @@ export default function LangChainRuns({ params }: { params: { projectId: string 
     const { data: langChainRuns, error, isLoading } = useQuery(
         ['getLangChainRuns', page, rowsPerPage],
         async () => {
-            const data = await fetchLangChainRuns(params.projectId, page, rowsPerPage);
+            const data = await fetchLangChainRuns(params.projectId, page, rowsPerPage, sortField, sortOrder);
             if (!data || data.length < rowsPerPage) {
                 setHasMoreData(false);
             }
@@ -164,17 +167,17 @@ export default function LangChainRuns({ params }: { params: { projectId: string 
             keepPreviousData: true
         }
     );
-
-    const { data: filterOptions, error: filterOptionsError, isLoading: filterOptionsLoading } = useQuery(
-        ['getLangChainFilterOptions', params.projectId, page, rowsPerPage],
-        () => fetchLangChainFilterKeys(params.projectId, page, rowsPerPage),
-        {
-            keepPreviousData: true, // Enable this to keep old data visible while fetching new data
-            cacheTime: Infinity,
-
-        }
-    );
-
+    //
+    // const { data: filterOptions, error: filterOptionsError, isLoading: filterOptionsLoading } = useQuery(
+    //     ['getLangChainFilterOptions', params.projectId, page, rowsPerPage],
+    //     () => fetchLangChainFilterKeys(params.projectId, page, rowsPerPage),
+    //     {
+    //         keepPreviousData: true, // Enable this to keep old data visible while fetching new data
+    //         cacheTime: Infinity,
+    //
+    //     }
+    // );
+    //
 
 
 
@@ -193,6 +196,14 @@ export default function LangChainRuns({ params }: { params: { projectId: string 
         });
     };
 
+    const handleSortModelChange = (sortModel: GridSortModel) => {
+        setSortField(sortModel[0].field)
+        if (sortModel[0].sort !== undefined && sortModel[0].sort !== null) {
+            setSortOrder(sortModel[0].sort)
+        }
+    };
+
+
     const applyFilters = () => {
         // apply the filters to the DataGrid here
     };
@@ -202,6 +213,8 @@ export default function LangChainRuns({ params }: { params: { projectId: string 
         <Layout>
 
             {/* Header */}
+            <AutoBreadcrumbs/>
+
             <Typography variant="h5" gutterBottom>
                 Runs
             </Typography>
@@ -228,22 +241,18 @@ export default function LangChainRuns({ params }: { params: { projectId: string 
                     pageSizeOptions={[10, 15, 20, 5]}
 
                     onStateChange={(state) => {
-                        if (state.pagination.page !== page) {
+                        if (state.pagination.page !== undefined && state.pagination.page !== page ) {
                             if (hasMoreData) {
                                 setPage(state.pagination.page);
                             }
                             // setPage(state.pagination.page);
                         }
-                        if (state.pagination.pageSize !== rowsPerPage) {
+                        if (state.pagination.pageSize !== undefined && state.pagination.pageSize !== rowsPerPage) {
                             setRowsPerPage(state.pagination.pageSize);
                         }
                     }}
-                    // onPageChange={(params) => {
-                    //     if (hasMoreData || params.page + 1 < page) {
-                    //         setPage(params.page + 1);
-                    //     }
-                    // }}
-                    // onPageSizeChange={(params) => setRowsPerPage(params.pageSize)}
+                    sortingMode="server"
+                    onSortModelChange={handleSortModelChange}
                     checkboxSelection
                     slots={{ toolbar: GridToolbar }}
                     slotProps={{
@@ -251,6 +260,7 @@ export default function LangChainRuns({ params }: { params: { projectId: string 
                             showQuickFilter: true,
                         },
                     }}
+                    loading={isLoading}
                 />
                 </div>
                 {/* Search and Filter Section */}
@@ -265,6 +275,7 @@ export default function LangChainRuns({ params }: { params: { projectId: string 
 
                 </div>
             </div>
+
 
 
 

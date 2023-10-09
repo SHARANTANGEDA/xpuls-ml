@@ -12,6 +12,7 @@ import {fetchLangChainFilterKeys, fetchLangChainRunSteps} from "@/services/langc
 import {CircularProgress} from "@nextui-org/react";
 import {Divider} from "@nextui-org/react";
 import {LangChainRunStep} from "@/types/langchain";
+import AutoBreadcrumbs from "@/app/components/AutoBreadcrumbs";
 
 
 export default function LangChainRunView({ params }: { params: { projectId: string, runId: string } }) {
@@ -43,6 +44,8 @@ export default function LangChainRunView({ params }: { params: { projectId: stri
         <Layout>
 
             {/* Header */}
+            <AutoBreadcrumbs/>
+
             <Typography variant="h5" gutterBottom>
                 Run:
             </Typography>

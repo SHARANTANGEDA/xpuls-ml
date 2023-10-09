@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/lib/pq"
 	"github.com/xpuls-com/xpuls-ml/models"
+	"github.com/xpuls-com/xpuls-ml/types"
 	"strings"
 	"time"
 
@@ -46,6 +47,8 @@ type TrackLangChainRunOption struct {
 
 type ListLangChainRunOption struct {
 	BaseListOption
+	SortField string           `query:"sort_field"`
+	SortOrder types.SortOrders `query:"sort_order"`
 }
 
 type LangChainFilterKeys struct {
@@ -120,7 +123,7 @@ func (s *langChainRunRepository) GetRunsInProject(ctx context.Context, opt *List
 	var total int64
 
 	query := getBaseQuery(ctx, s).Select("*").Where("project_id = ?", projectId).Order(
-		"chain_tracked_at desc")
+		fmt.Sprintf("%s %s", opt.SortField, opt.SortOrder))
 	err := query.Count(&total).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
