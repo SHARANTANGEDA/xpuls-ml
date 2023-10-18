@@ -3,27 +3,19 @@
 import Layout from "@/app/components/Layout";
 import {fetchProjects} from "@/services/projects";
 import {
-    Table,
-    Pagination,
-    TableHeader,
-    TableColumn,
-    TableRow,
-    TableCell,
-    getKeyValue,
     Link,
-    Button, Divider
+    Button,
 } from '@nextui-org/react';
-import {useEffect, useState} from "react";
-import {Breadcrumbs, TableBody} from "@mui/material";
+import {useState} from "react";
 import Typography from "@mui/material/Typography";
 import {CircularProgress} from "@nextui-org/react";
-
-
+import ConstructionIcon from '@mui/icons-material/Construction';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import {useQuery} from "react-query";
 import AutoBreadcrumbs from "@/app/components/AutoBreadcrumbs";
-import ProjectModal from "@/app/observe/NewProjectModal";
+import ProjectModal from "@/app/[projectId]/NewProjectModal";
 
 const columns: GridColDef[] = [
     { field: 'project_id', headerName: 'ID', width: 350},
@@ -33,13 +25,21 @@ const columns: GridColDef[] = [
             </b>
         ), },
     { field: 'project_slug', headerName: 'Slug', width: 130 },
-    { field: 'open', headerName: 'View', width: 180, renderCell: (params) => (
-            <Link href={`/observe/${params.row.project_id}`} rel="noopener">
-                <Button size={"sm"} color="primary" variant="flat">
-                    view runs
+    { field: 'prompt_registry', headerName: 'Manage Prompts', width: 180, renderCell: (params) => (
+            <Link href={`/${params.row.project_id}/registry`} rel="noopener">
+                <Button className="text-blue-700 bg-blue-100" size={"sm"} variant="flat">
+                   <ConstructionIcon/> Prompt Registry
                 </Button>
             </Link>
         ) },
+    { field: 'view_runs', headerName: 'Monitor', width: 180, renderCell: (params) => (
+            <Link href={`/${params.row.project_id}/observe`} rel="noopener">
+                <Button className="text-green-700 bg-green-100" size={"sm"} variant="flat">
+                    <MonitorHeartIcon/> Monitor Runs
+                </Button>
+            </Link>
+        ) },
+
     // { field: 'total_runs', headerName: 'Total Runs', width: 130 },
     // { field: 'total_tokens', headerName: 'Total Tokens', width: 130 },
     // { field: 'total_p50', headerName: 'p50 latency', width: 130 },
@@ -57,8 +57,6 @@ export default function Projects() {
 
     const rowsPerPage = 4;
 
-    const pages = 2
-
     const { data: projects, error, isLoading } = useQuery(
         ['projects', page, rowsPerPage],
         () => fetchProjects(page, rowsPerPage),
@@ -73,30 +71,22 @@ export default function Projects() {
 
     return (
         <Layout>
-            {/* Breadcrumbs */}
-            {/*<Breadcrumbs size="mini">*/}
-            {/*    <Breadcrumbs.Item>Home</Breadcrumbs.Item>*/}
-            {/*    <Breadcrumbs.Item>Projects</Breadcrumbs.Item>*/}
-            {/*    <Breadcrumbs.Item>Observe</Breadcrumbs.Item>*/}
-            {/*</Breadcrumbs>*/}
-
             {/* Header */}
             <AutoBreadcrumbs/>
-            <ProjectModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
-
-
             <div className="flex justify-between items-center">
-                <Typography variant="h5" gutterBottom>
+                <p className="text-2xl">
                     Agents
-                </Typography>
-                {/*<Button onClick={() => setModalOpen(true)} radius="full" className="bg-gradient-to-tr from-blue-600 to-green-600 text-white shadow-lg">*/}
-                {/*    + New*/}
-                {/*</Button>*/}
+                </p>
+                <Button onClick={() => setModalOpen(true)} className="bg-blue-700 text-white mr-2 mb-2">
+                    + Create Agent </Button>
             </div>
+            <ProjectModal isOpen={isModalOpen} onClose={() => setModalOpen(!isModalOpen)} />
+
+
 
             {/* Table */}
             <DataGrid
-                rows={projects}
+                rows={projects as any[]}
                 columns={columns}
                 getRowId={(row) => row.project_id}
                 initialState={{
@@ -107,11 +97,6 @@ export default function Projects() {
                 pageSizeOptions={[5, 10]}
                 checkboxSelection
             />
-
-
-
-
-
         </Layout>
     )
 }

@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Chip, TextField, Modal, Box, Typography } from '@mui/material';
 import {Button} from "@nextui-org/react";
+import { useRecoilState } from 'recoil';
+import { useMutation } from 'react-query';
+import {isProjectSlugAvailable} from "@/services/projects";
+import {convertToAlphanumericWithUnderscore} from "@/utils/common"
 
 interface ProjectModalProps {
     isOpen: boolean;
@@ -9,8 +13,26 @@ interface ProjectModalProps {
 
 const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose }) => {
     const [projectName, setProjectName] = useState<string>('');
+    const [projectSlug, setProjectSlug] = useState("");
+    const [slugError, setErrorForSlug] = useState("");
     const [tag, setTag] = useState<string>('');
     const [tags, setTags] = useState<string[]>([]);
+
+    const validateSlugMutation = useMutation(isProjectSlugAvailable, {
+        onSuccess: (isValid) => {
+            // Handle success. You can set any state or perform side effects based on the API response here.
+            // Assuming the API returns { isValid: true/false, message: 'error message' }
+            if (isValid) {
+                setErrorForSlug("Slug must be unique");
+            } else {
+                setErrorForSlug(''); // Clear the error
+            }
+        },
+        onError: (error) => {
+            // Handle error. For example, set an error message.
+            setErrorForSlug('Failed to validate slug');
+        },
+    });
 
     const addTag = () => {
         if (tag && !tags.includes(tag)) {
@@ -23,6 +45,13 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose }) => {
         setTags(prev => prev.filter(t => t !== tagToRemove));
     };
 
+    const updateProjectName = (projectName: string) => {
+        setProjectName(projectName);
+
+        setProjectSlug(convertToAlphanumericWithUnderscore(projectName))
+        // validateSlugMutation.mutate(projectSlug)
+    };
+
     const handleSubmit = () => {
         // Handle the submission logic here (e.g., API call to create a new project)
         console.log('Project Name:', projectName);
@@ -33,22 +62,26 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose }) => {
     return (
         <Modal open={isOpen} onClose={onClose}>
             <Box sx={{ width: 400, padding: 3, bgcolor: 'background.paper', margin: 'auto', marginTop: '10%' }}>
-                <Typography variant="h6" gutterBottom>
+                <p className="text-2xl text-black">
                     Create New Project
-                </Typography>
+                </p>
                 <TextField
                     fullWidth
                     margin="normal"
                     label="Project Name"
                     value={projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
+                    onChange={(e) => updateProjectName(e.target.value)}
+                    onBlur={() => validateSlugMutation.mutate(projectSlug)}
                 />
                 <TextField
                     fullWidth
                     margin="normal"
                     label="Project Slug"
-                    value={projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
+                    value={projectSlug}
+                    onChange={(e) => setProjectSlug(e.target.value)}
+                    onBlur={() =>  validateSlugMutation.mutate(projectSlug)}
+                    error={Boolean(slugError)}
+                    helperText={slugError}
                 />
                 <TextField
                     fullWidth

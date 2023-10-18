@@ -16,10 +16,10 @@ interface XpulsNavbarProps {
 
 export default function XpulsNavbar({ handleDrawerToggle, drawerWidth, miniDrawerWidth, open }: XpulsNavbarProps) {
     return (
-        <Navbar isBordered maxWidth={"full"} position={"sticky"}
+        <Navbar className="z-50" isBordered maxWidth={"full"} position={"sticky"}
                 style={{
                     marginLeft: open ? drawerWidth : miniDrawerWidth ,
-                    zIndex: 1600, // Set a high z-index value here
+                    // zIndex: 1600, // Set a high z-index value here
                     // width: `calc(100% - ${open ? drawerWidth : miniDrawerWidth}px)` // Set the width
 
                 }}>

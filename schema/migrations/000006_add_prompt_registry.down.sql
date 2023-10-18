@@ -1,0 +1,4 @@
+drop view view_prompt_registry_latest_version;
+drop view view_prompt_registry_versions;
+drop table prompt_registry_prompt_versions;
+drop table prompt_registry_prompts;

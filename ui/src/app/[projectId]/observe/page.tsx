@@ -11,7 +11,6 @@ import {CircularProgress, Chip} from "@nextui-org/react";
 import {DataGrid, GridColDef, GridToolbar, GridSortModel} from '@mui/x-data-grid';
 import {useQuery} from "react-query";
 import {fetchLangChainFilterKeys, fetchLangChainRuns} from "@/services/langchain_runs";
-import FilterPanel from "@/app/observe/[projectId]/FilterPanel";
 import moment from "moment";
 import "@/app/globals.css"
 import {WhiteBackgroundTooltip} from "@/app/components/WhiteBackgrounToolTip";

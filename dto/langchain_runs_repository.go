@@ -18,7 +18,6 @@ type langChainRunRepository struct{}
 
 var LangChainRunRepository = langChainRunRepository{}
 
-// Define the custom type for the enum
 type LabelCondition string
 
 // Define the possible values for the enum
@@ -133,7 +132,6 @@ func (s *langChainRunRepository) GetRunsInProject(ctx context.Context, opt *List
 		return nil, err
 	}
 
-	fmt.Println(total, projectId)
 	langChainRuns := make([]*models.LangChainRuns, 0)
 	query = opt.BindQueryWithLimit(query)
 

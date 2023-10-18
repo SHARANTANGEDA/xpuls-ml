@@ -11,6 +11,18 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      maxWidth: {
+        '1/4': '25%',
+        '3/10': '30%',
+        '2/5': '40%',
+        '1/2': '50%',
+        '3/5': '60%',
+        '7/10': '70%',
+        '3/4': '75%',
+        '4/5': '80%',
+        '9/10': '90%',
+
+      }
       // backgroundImage: {
       //   'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       //   'gradient-conic':

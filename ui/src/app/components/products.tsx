@@ -12,5 +12,10 @@ export const products = [
         "url": "/observe",
         "icon": <MonitorIcon/>
 
+    }, {
+        "name": "Prompts",
+        "url": "/prompt",
+        "icon": <MonitorIcon/>
+
     }
 ]

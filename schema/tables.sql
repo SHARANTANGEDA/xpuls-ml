@@ -139,3 +139,30 @@ create table if not exists llm_tracing_queue
     queue_processing_code varchar(200),
     queue_item_processed  boolean      default false                                        not null
     );
+
+create table if not exists prompt_registry_prompts
+(
+    prompt_id         varchar(200)                                                   not null
+    constraint prompt_registry_prompts_pk
+    primary key,
+    prompt_name       varchar(200)                                                   not null,
+    project_id        varchar(200)                                                   not null
+    constraint prompt_registry_prompts_projects_project_id_fk
+    references projects,
+    prompt_created_at timestamp default (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'::text) not null,
+    prompt_deleted    boolean   default false                                        not null,
+    prompt_deleted_at timestamp
+    );
+
+create table if not exists prompt_registry_prompt_versions
+(
+    prompt_version_id         varchar(200)                                                   not null
+    constraint prompt_registry_prompt_versions_pk
+    primary key,
+    prompt_content            text                                                           not null,
+    prompt_version_created_at timestamp default (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'::text) not null,
+    prompt_id                 varchar(200)                                                   not null
+    constraint prompt_versions_prompts_prompt_id_fk
+    references prompt_registry_prompts,
+    prompt_tag                varchar(200)
+    );
