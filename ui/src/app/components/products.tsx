@@ -1,5 +1,6 @@
-import MonitorIcon from '@mui/icons-material/Monitor';
+//import MonitorIcon from '@mui/icons-material/Monitor';
 import HomeIcon from '@mui/icons-material/Home';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 
 export const products = [
     {
@@ -7,15 +8,10 @@ export const products = [
         "url": "/",
         "icon": <HomeIcon/>
 
-    }, {
-        "name": "Observe",
-        "url": "/observe",
-        "icon": <MonitorIcon/>
-
-    }, {
-        "name": "Prompts",
-        "url": "/prompt",
-        "icon": <MonitorIcon/>
-
-    }
+    },
+    {
+        "name": "Agents",
+        "url": "/agents",
+        "icon": <SmartToyIcon/>
+    },
 ]

@@ -1,2 +1,4 @@
 .idea
 *.iml
+main.exe
+xpuls-config.local.yaml

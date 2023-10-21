@@ -64,7 +64,7 @@ const columns: GridColDef[] = [
   // { field: 'latest_run_latency', headerName: 'latest runs latency', width: 130 },
 ];
 
-export default function Home() {
+export default function Agents() {
   const [page, setPage] = useState(1);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
 
@@ -90,7 +90,7 @@ export default function Home() {
       {/* Header */}
       <AutoBreadcrumbs />
       <div className="flex justify-between items-center">
-        <p className="text-2xl">Home</p>
+        <p className="text-2xl">Agents</p>
         <Button
           onClick={() => setModalOpen(true)}
           className="bg-blue-700 text-white mr-2 mb-2"
