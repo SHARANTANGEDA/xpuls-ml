@@ -34,24 +34,24 @@ export default function XpulsNavbar({ handleDrawerToggle, drawerWidth, miniDrawe
 
 
             {/*</Toolbar>*/}
-            <NavbarBrand>
-                {/*<IconButton*/}
-                {/*    color="inherit"*/}
-                {/*    aria-label="open drawer"*/}
-                {/*    onClick={handleDrawerToggle}*/}
-                {/*    edge="start"*/}
-                {/*>*/}
-                {/*    <MenuIcon />*/}
-                {/*</IconButton>*/}
-                <Image style={{marginRight: '30px'}}
-                    width={36}
-                    height={36}
-                    src="/favicon.ico"
-                    alt="XpulsAI Logo"
-                />
+            {/*<NavbarBrand>*/}
+            {/*    /!*<IconButton*!/*/}
+            {/*    /!*    color="inherit"*!/*/}
+            {/*    /!*    aria-label="open drawer"*!/*/}
+            {/*    /!*    onClick={handleDrawerToggle}*!/*/}
+            {/*    /!*    edge="start"*!/*/}
+            {/*    /!*>*!/*/}
+            {/*    /!*    <MenuIcon />*!/*/}
+            {/*    /!*</IconButton>*!/*/}
+            {/*    <Image style={{marginRight: '30px'}}*/}
+            {/*        width={36}*/}
+            {/*        height={36}*/}
+            {/*        src="/favicon.ico"*/}
+            {/*        alt="XpulsAI Logo"*/}
+            {/*    />*/}
 
-                <h2 className="font-bold text-inherit">Xpuls.ai</h2>
-            </NavbarBrand>
+            {/*    <h2 className="font-bold text-inherit">Xpuls.ai</h2>*/}
+            {/*</NavbarBrand>*/}
             {/*<NavbarContent className="hidden sm:flex gap-4" justify="center">*/}
             {/*    <NavbarItem>*/}
             {/*        <Link color="foreground" href="#">*/}

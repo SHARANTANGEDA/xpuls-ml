@@ -1,6 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 const {nextui} = require("@nextui-org/react");
+const defaultTheme = require('tailwindcss/defaultTheme')
 
 const config: Config = {
   content: [
@@ -29,6 +30,9 @@ const config: Config = {
       //     'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       // },
     },
+  },
+  fontFamily: {
+    'sans': ['"Proxima Nova"', ...defaultTheme.fontFamily.sans],
   },
   darkMode: "class",
   plugins: [nextui()],

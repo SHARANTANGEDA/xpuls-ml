@@ -7,17 +7,17 @@ import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+import {Divider} from "@nextui-org/react";
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import {ChevronRightIcon} from "@nextui-org/shared-icons";
-import {ListItemButton} from "@mui/material";
-import {products} from "@/app/components/products";
-import Link from 'next/link'
+import {ListItemButton} from "@mui/material";import Link from 'next/link'
+import {Image, NavbarBrand} from "@nextui-org/react";
+import {products, socials} from "@/utils/feature_groups";
+import { SocialIcon } from 'react-social-icons'
+import {BsChevronLeft, BsChevronRight} from 'react-icons/bs';
 
 interface XpulsSidebarProps {
     handleDrawerToggle: () => void;
@@ -27,7 +27,9 @@ interface XpulsSidebarProps {
 }
 
 export default function Sidebar({handleDrawerToggle, drawerWidth, miniDrawerWidth, open}: XpulsSidebarProps) {
+    const [sopen, setOpen] = React.useState(true);
 
+    const bottomProps = open ? "": ""
     return (
         <Drawer
                 variant="permanent"
@@ -37,16 +39,42 @@ export default function Sidebar({handleDrawerToggle, drawerWidth, miniDrawerWidt
                     '& .MuiDrawer-paper': {
                         width: open ? drawerWidth : miniDrawerWidth,
                         boxSizing: 'border-box',
-                        marginTop: '4rem',
+                        // marginTop: '4rem',
                         marginBottom: '0rem',
                     },
                 }}
             >
+            {open ? (<div onClick={() => window.location.href = "/"}
+                          className="flex flex-row justify-center align-center items-center mt-2"
+                           style={{ cursor: 'pointer'}}>
+                <Image style={{marginRight: '16px'}}
+                       width={42}
+                       height={42}
+                       src="/xpulsai.png"
+                       alt="XpulsAI Logo"
+                />
+                <div className="flex flex-row"><p className="text-transparent bg-clip-text text-3xl font-bold
+                 bg-gradient-to-r from-cyan-600 to-blue-600 ">xpuls.</p> <p className="text-transparent bg-clip-text text-3xl font-bold
+                 bg-gradient-to-r from-indigo-600 to-pink-600">ai</p></div>
+
+            </div>): (
+                <div className="flex flex-row justify-center items-center">
+                    <Image style={{marginRight: '16px'}}
+                           width={52}
+                           height={52}
+                           src="/xpulsai.png"
+                           alt="XpulsAI Logo"
+                    />
+                </div>
+            )}
+            <ListItem>
+                <Divider className="my-2" />
+            </ListItem>
 
 
             <List>
                 {products.map((item, index) => (
-                    <ListItem key={item.name}  disablePadding
+                    <ListItem className="flex " key={item.name}  disablePadding
                               sx={{ display: 'block', color: 'black' }}>
                         <Link href={item.url}>
 
@@ -54,23 +82,51 @@ export default function Sidebar({handleDrawerToggle, drawerWidth, miniDrawerWidt
                             <ListItemIcon>
                                 {item.icon}
                             </ListItemIcon>
-                            <ListItemText primary={item.name} sx={{ opacity: open ? 1 : 0 }} />
+                            {/*<ListItemText primary={item.name} sx={{ opacity: open ? 1 : 0, fontWeight: "bold" }} />*/}
+                            <p className="font-semibold" style={{ opacity: open ? 1 : 0}}>{item.name}</p>
                         </ListItemButton>
                         </Link>
                     </ListItem>
 
                 ))}
                 </List>
-
-            <ListItem button onClick={handleDrawerToggle} sx={{
-                position: 'absolute', // Absolute positioning
-                bottom: '5rem', // Anchor to the bottom
-                left: 0, // Anchor to the left
-            }}>
-                <ListItemIcon>
-                    {open? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                </ListItemIcon>
+            <ListItem>
+                <Divider className="my-4  " />
             </ListItem>
+
+
+            <List className="fixed bottom-0 w-full" style={{ position: "absolute", bottom: "0" }}>
+                <ListItem>
+                    <Divider className="my-4  " />
+                </ListItem>
+                {open? (
+                    <List className="flex relative flex-row bottom-0 w-full">
+                        {
+                            socials.map((item, index) => (
+                                <ListItemButton target="_blank" href={item.url}  className="hover:bg-transparent"> <ListItemIcon className="hover:bg-transparent"> {item.icon}</ListItemIcon></ListItemButton>
+                            ))
+                        }
+                    </List>
+                ): (<List className="flex flex-col bottom-0 w-full">
+                    {
+                        socials.map((item, index) => (
+                            <ListItemButton target="_blank" href={item.url} className="hover:bg-transparent"> <ListItemIcon className="hover:bg-transparent"> {item.icon}</ListItemIcon></ListItemButton>
+                        ))
+                    }
+
+                </List>)}
+                <ListItem>
+                    <Divider className="my-4  " />
+                </ListItem>
+
+                <ListItemButton onClick={handleDrawerToggle} >
+                    <ListItemIcon className="flex-row justify-start">
+                        {open? <BsChevronLeft size={24}/> : <BsChevronRight size={24}/>}
+                    </ListItemIcon>
+                </ListItemButton>
+            </List>
+
+
             </Drawer>
     );
 };

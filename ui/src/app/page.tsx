@@ -89,11 +89,13 @@ export default function Home() {
     <Layout>
       {/* Header */}
       <AutoBreadcrumbs />
-      <div className="flex justify-between items-center">
-        <p className="text-2xl">Home</p>
+      <div className="flex justify-end items-center">
+        {/*<p className="text-2xl">Home</p>*/}
         <Button
+            variant={"solid"} color={"primary"}
           onClick={() => setModalOpen(true)}
-          className="bg-blue-700 text-white mr-2 mb-2"
+
+          className="mr-2 mb-2"
         >
           + Create Agent{" "}
         </Button>
