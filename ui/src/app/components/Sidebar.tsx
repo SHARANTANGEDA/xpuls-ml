@@ -16,7 +16,6 @@ import {ChevronRightIcon} from "@nextui-org/shared-icons";
 import {ListItemButton} from "@mui/material";import Link from 'next/link'
 import {Image, NavbarBrand} from "@nextui-org/react";
 import {products, socials} from "@/utils/feature_groups";
-import { SocialIcon } from 'react-social-icons'
 import {BsChevronLeft, BsChevronRight} from 'react-icons/bs';
 
 interface XpulsSidebarProps {
@@ -100,7 +99,7 @@ export default function Sidebar({handleDrawerToggle, drawerWidth, miniDrawerWidt
                     <Divider className="my-4  " />
                 </ListItem>
                 {open? (
-                    <List className="flex relative flex-row bottom-0 w-full">
+                    <List  className="flex relative flex-row bottom-0 w-full">
                         {
                             socials.map((item, index) => (
                                 <ListItemButton target="_blank" href={item.url}  className="hover:bg-transparent"> <ListItemIcon className="hover:bg-transparent"> {item.icon}</ListItemIcon></ListItemButton>

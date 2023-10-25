@@ -32,5 +32,6 @@ func NewRouter() (*gin.Engine, error) {
 	LangChainRunsTrack(router.Group("/"))
 	LangChainRuns(router.Group("/v1/langchain"))
 	PromptRegistry(router.Group("/v1/registry"))
+	AnalyticsAndUsage(router.Group("/v1/analytics"))
 	return router, nil
 }

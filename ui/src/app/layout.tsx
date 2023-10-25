@@ -2,12 +2,11 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import {Providers} from "@/app/providers";
-import {Author} from "next/dist/lib/metadata/types/metadata-types";
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Xpuls | Integrated MLOps & LLMOps Platform',
+  title: 'xpuls.ai | open-source MLOps & LLMOps Platform',
   description: 'End-to-end MLOps & LLMOps Platform for building, deploying and monitoring models in Production',
     authors: {
       url: "https://www.linkedin.com/in/sai-sharan-tangeda/",

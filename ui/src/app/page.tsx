@@ -14,6 +14,8 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useQuery } from "react-query";
 import AutoBreadcrumbs from "@/app/components/AutoBreadcrumbs";
 import ProjectModal from "@/app/[projectId]/NewProjectModal";
+import LineChart from "@/app/components/Charts/LineChart";
+import {getTokenUsage} from "@/services/analytics_and_usage";
 
 const columns: GridColDef[] = [
   { field: "project_id", headerName: "ID", width: 350 },
@@ -82,13 +84,83 @@ export default function Home() {
     }
   );
 
+  const {
+    data: usageData,
+    error: usageDataError,
+    isLoading: isLoadingData,
+  } = useQuery(
+    ["getTokenUsage", "default", "line", "model_name"],
+    () => getTokenUsage({
+        chart_type: "line",
+        aggregation_type: "default",
+        group_by_column: "model_name",
+        time_granularity: "day",
+        time_days_ago: 30
+    }),
+    {
+      keepPreviousData: true, // Enable this to keep old data visible while fetching new data
+      cacheTime: 24*3600
+    }
+  );
+
+  const {
+    data: usageCumulativeData,
+    error: usageCumulativeDataError,
+    isLoading: isLoadingCumulativeData,
+  } = useQuery(
+    ["getTokenUsage", "cumulative", "line", "model_name"],
+    () => getTokenUsage({
+        chart_type: "line",
+        aggregation_type: "cumulative",
+        group_by_column: "model_name",
+        time_granularity: "day",
+        time_days_ago: 30
+    }),
+    {
+      keepPreviousData: true, // Enable this to keep old data visible while fetching new data
+      cacheTime: 24*3600
+    }
+  );
+
+
+
   if (isLoading) return <CircularProgress aria-label="Loading..." />;
   if (error) return <div>Error loading data</div>;
+
+    let charts = null
+    if (isLoadingData || usageData === undefined) {
+        charts = (
+            <CircularProgress aria-label="Loading..." />
+        )
+    }else if (usageDataError) {
+        charts = (<div>Error loading chart data</div>)
+    }else {
+        charts = (
+            <LineChart data={usageData} title={"Daily Tokens Usage"} yAxisName="Tokens"/>
+        )
+    }
+
+    let cumulativeChart = null
+    if (isLoadingCumulativeData || usageCumulativeData === undefined) {
+        cumulativeChart = (
+            <CircularProgress aria-label="Loading..." />
+        )
+    }else if (usageCumulativeDataError) {
+        cumulativeChart = (<div>Error loading chart data</div>)
+    }else {
+        cumulativeChart = (
+            <LineChart data={usageCumulativeData} title={"Daily Tokens Cumulative Usage"} yAxisName="Tokens"/>
+        )
+    }
 
   return (
     <Layout>
       {/* Header */}
       <AutoBreadcrumbs />
+        <div className="flex flex-row mb-8 h-1/2">
+            {charts}
+            {cumulativeChart}
+        </div>
       <div className="flex justify-end items-center">
         {/*<p className="text-2xl">Home</p>*/}
         <Button
@@ -118,6 +190,8 @@ export default function Home() {
         pageSizeOptions={[5, 10]}
         checkboxSelection
       />
+
+
     </Layout>
   );
 }
