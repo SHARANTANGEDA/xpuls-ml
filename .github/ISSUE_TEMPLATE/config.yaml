@@ -1,0 +1,18 @@
+blank_issues_enabled: true
+version: 2.1
+contact_links:
+  - name: Reach out to xpuls.ai
+    url: https://xpuls.aii
+    about: For more information about the product.
+  - name: xpuls-ml Discussions
+    url: https://github.com/xpuls-labs/xpuls-ml/discussions
+    about: Please ask any questions that you have here.
+  - name: xpuls.ai Discord Community
+    url: https://discord.gg/6VF8qXXJnA
+    about: Join the discord community using this link
+  - name: Reach out to premium support
+    url: support@xpuls.ai
+    about: For raising a support ticket or submitting a feature request in enterprise version
+  - name: Reachout to the founder
+    url: sharan@xpuls.ai
+    about: Catch-up with the founder of xpuls.ai
